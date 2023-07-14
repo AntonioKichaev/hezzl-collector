@@ -9,7 +9,7 @@ import (
 	"github.com/antoniokichaev/hezzl-collector/pkg/postgres"
 )
 
-var ErrNotFound = errors.New("campaign.not.found")
+var ErrNotFoundCampaign = errors.New("campaign.not.found")
 
 type CampaignRepo struct {
 	*postgres.Postgres
@@ -58,7 +58,7 @@ func (c *CampaignRepo) UpdateCampaign(ctx context.Context, name string, id int) 
 		return
 	}
 	if rowsAffected.RowsAffected() == 0 {
-		err = ErrNotFound
+		err = ErrNotFoundCampaign
 		return
 	}
 
@@ -80,7 +80,7 @@ func (c *CampaignRepo) DeleteCampaign(ctx context.Context, id int) (campaignEnti
 	var name string
 	err := c.Pool.QueryRow(ctx, sqlReq, args...).Scan(&name)
 	if err != nil {
-		return campaignEntity.Campaign{}, fmt.Errorf("%s %w", fName, ErrNotFound)
+		return campaignEntity.Campaign{}, fmt.Errorf("%s %w", fName, ErrNotFoundCampaign)
 	}
 
 	return campaignEntity.Campaign{Name: name, ID: id}, nil
@@ -92,7 +92,7 @@ func (c *CampaignRepo) GetCampaign(ctx context.Context, id int) (campaignEntity.
 	sqlReq, args, _ := c.Builder.Select("*").From(_tableCampaigns).Where(sq.Eq{"id": id}).ToSql()
 	err := c.Pool.QueryRow(ctx, sqlReq, args...).Scan(&camp.ID, &camp.Name)
 	if err != nil {
-		return campaignEntity.Campaign{}, fmt.Errorf("%s QueryRow %w", fName, err)
+		return campaignEntity.Campaign{}, fmt.Errorf("%s QueryRow %w", fName, ErrNotFoundCampaign)
 	}
 
 	return camp, nil

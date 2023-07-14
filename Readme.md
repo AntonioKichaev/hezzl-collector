@@ -27,7 +27,7 @@ docker-compose up -d --build
 ## Как запустить без докера
 Поумолчанию сервер запускается на 80 порту. доступен по `localhost:80`
 
-1.поднимем окружение
+1. Необходимо поднять окружение,для которого применятся миграции из папки `mirgations/`
    ```shell
    docker-compose up -d pg_db redis nats clickhouse
    ```

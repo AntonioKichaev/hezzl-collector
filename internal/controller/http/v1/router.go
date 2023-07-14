@@ -26,6 +26,7 @@ func New(route *gin.Engine, services *service.Services) {
 		campaignRoute.POST("/create", campaignHandlers.Create)
 		campaignRoute.PATCH("/update", campaignHandlers.Update)
 		campaignRoute.DELETE("/remove", campaignHandlers.Delete)
+		campaignRoute.GET("/", campaignHandlers.GetCampaign)
 	}
 	baseRoute.GET("/campaigns/list", campaignHandlers.GetCampaigns)
 

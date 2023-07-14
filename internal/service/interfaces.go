@@ -16,7 +16,7 @@ type Campaign interface {
 	CreateCampaign(ctx context.Context, name string) (campaign.Campaign, error)
 	UpdateCampaign(ctx context.Context, name string, id int) (campaign.Campaign, error)
 	DeleteCampaign(ctx context.Context, id int) (campaign.Campaign, error)
-	GetCampaign(ctx context.Context)
+	GetCampaign(ctx context.Context, id int) (campaign.Campaign, error)
 	GetCampaigns(ctx context.Context) ([]campaign.Campaign, error)
 }
 

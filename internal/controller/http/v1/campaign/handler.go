@@ -43,7 +43,7 @@ func (h *Handlers) Create(c *gin.Context) {
 
 // Update принимает запрос ввида PATCH /item/update?id=int
 func (h *Handlers) Update(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
@@ -55,7 +55,7 @@ func (h *Handlers) Update(c *gin.Context) {
 		return
 	}
 	comp, err := h.campaignService.UpdateCampaign(c.Request.Context(), req.Name, id)
-	if errors.Is(err, pgdb.ErrNotFoundItem) {
+	if errors.Is(err, pgdb.ErrNotFoundCampaign) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "errors.item.notFound", "code": 3, "detail": "{}"})
 		return
 	} else if err != nil {
@@ -67,14 +67,14 @@ func (h *Handlers) Update(c *gin.Context) {
 
 // Delete принимает запрос ввида DELETE /item/remove?id=int
 func (h *Handlers) Delete(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.Atoi(c.Query("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
 	isDeleted, err := h.campaignService.DeleteCampaign(c.Request.Context(), id)
-	if errors.Is(err, pgdb.ErrNotFoundItem) {
+	if errors.Is(err, pgdb.ErrNotFoundCampaign) {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "errors.item.notFound", "code": 3, "detail": "{}"})
 		return
 	} else if err != nil {
@@ -89,6 +89,26 @@ func (h *Handlers) GetCampaigns(c *gin.Context) {
 	allItems, err := h.campaignService.GetCampaigns(c.Request.Context())
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	c.JSON(http.StatusOK, allItems)
+}
+
+// GetCampaigns принимает запрос ввида GET /campaigns/list
+func (h *Handlers) GetCampaign(c *gin.Context) {
+	idStr := c.Query("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+
+	}
+	allItems, err := h.campaignService.GetCampaign(c.Request.Context(), id)
+	if errors.Is(err, pgdb.ErrNotFoundCampaign) {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"message": "errors.item.notFound", "code": 3, "detail": "{}"})
+		return
+	} else if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"message": "", "detail": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, allItems)
