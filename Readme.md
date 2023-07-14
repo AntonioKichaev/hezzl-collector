@@ -25,7 +25,9 @@ docker-compose up -d --build
 запускаеться сборка, pulling всех образов.
 
 ## Как запустить без докера
-1. поднимем окружение
+Поумолчанию сервер запускается на 80 порту. доступен по `localhost:80`
+
+1.поднимем окружение
    ```shell
    docker-compose up -d pg_db redis nats clickhouse
    ```
