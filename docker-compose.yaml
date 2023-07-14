@@ -1,0 +1,72 @@
+version: '3.7'
+
+services:
+  collector:
+    depends_on:
+      - pg_db
+      - redis
+      - nats
+      - clickhouse
+    build:
+      context: .
+    volumes:
+      - ./config/:/bin/app/config/
+    links:
+      - "redis:redis"
+      - "clickhouse:clickhouse"
+      - "nats:nats"
+      - "pg_db:pg_db"
+    environment:
+      REDIS_ADD: "redis"
+      CH_ADDR: "clickhouse"
+      NATS_URL: "nats"
+      POSTGRES_URL: "postgres://anton:!anton321@pg_db/collector?sslmode=disable"
+
+
+    ports:
+      - "80:80"
+
+
+  pg_db:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: "anton"
+      POSTGRES_PASSWORD: "!anton321"
+      POSTGRES_DB: "collector"
+    restart: on-failure
+    volumes:
+      - ./migrations/postgres/:/docker-entrypoint-initdb.d/
+    ports:
+      - ${POSTGRES_PORT:-5555}:5432
+
+  redis:
+    image: "redis:alpine"
+    command: redis-server --requirepass anton322
+    ports:
+      - "6379:6379"
+    environment:
+      REDIS_REPLICATION_MODE: "master"
+
+  nats:
+    image: nats:latest
+    ports:
+      - "8222:8222"
+      - "4222:4222"
+    command: "--http_port 8222 -js"
+
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:23.3.8.21-alpine
+    restart: always
+    ports:
+      - "8123:8123" # HTTP-порт для запросов к ClickHouse
+      - "9000:9000" # Native-порт для запросов к ClickHouse
+    volumes:
+      - ./migrations/clickhouse/:/docker-entrypoint-initdb.d/
+      - ./clickhousedb:/var/lib/clickhouse
+    environment:
+      CLICKHOUSE_USER: "anton322" # Имя пользователя
+      CLICKHOUSE_PASSWORD: "!anton322" # Пароль пользователя
+      CLICKHOUSE_DB: "event"
+
+

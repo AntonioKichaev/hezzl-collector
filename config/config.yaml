@@ -1,0 +1,23 @@
+
+
+postgres:
+  max_pool_size: 2
+  conn_attempts: 3
+  url: "postgres://anton:!anton321@127.0.0.1:5555/collector?sslmode=disable"
+
+
+redis:
+  password: "anton322"
+  addr: ":6379"
+  db: 0
+
+nats:
+  url: ":4222"
+
+clickhouse:
+  username: "anton322"
+  password: "!anton322"
+  native_port: 9000
+  http_port: 8123
+  db: "event"
+  addr: ""
